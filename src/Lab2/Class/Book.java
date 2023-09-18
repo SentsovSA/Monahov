@@ -6,6 +6,7 @@ public class Book {
     private String name;
     private int circulation;
     private String publisher;
+    private boolean isCool;
 
     public Book(String author, String name, int circulation, String publisher) {
         this.author = author;
@@ -58,5 +59,9 @@ public class Book {
                 ", название " + name +
                 ", тираж " + circulation +
                 ", издательство " + publisher;
+    }
+
+    public boolean isCoolSelected() {
+        return isCool;
     }
 }
