@@ -6,25 +6,26 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class Textbook extends Book {
-    protected static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-    private int number;
+    public static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+    private TextBookType type;
     private int educationLevel;
     private String useForm;
     private Date date;
-    public Textbook(int number, String author, String publisher, String name, int circulation, int educationLevel, String useForm, Date date) {
-        super(name, author, circulation, publisher);
-        this.number = number;
+    public Textbook(String author, int circulation, String publisher, TextBookType type, int educationLevel, String useForm, Date date) {
+        super(author, circulation, publisher);
+        this.type = type;
         this.educationLevel = educationLevel;
         this.useForm = useForm;
         this.date = date;
     }
 
-    public int getNumber() {
-        return number;
+    public TextBookType getType() {
+        return type;
     }
 
-    public void setNumber(int number) {
-        this.number = number;
+    public void setType(TextBookType type) {
+        this.type = type;
     }
 
     public int getEducationLevel() {
@@ -54,9 +55,9 @@ public class Textbook extends Book {
     @Override
     public String toString() {
         return "Учебник: " +
-                "код " + number +
+                "код " + type.getId() +
                 ", автор " + getAuthor() +
-                ", название " + getName() +
+                ", название " + type.getName() +
                 ", тираж " + getCirculation() +
                 ", издательство " + getPublisher() +
                 ", уровень образования " + educationLevel +

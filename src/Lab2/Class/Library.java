@@ -14,16 +14,16 @@ public class Library {
     public static void main(String[] args) throws ParseException {
         Book[] booksArray = new Book[10];
         booksArray[0] = new Book("Pushkin", "Kapitanskaya dochka", 10000, "Pub1");
-        booksArray[1] = new Textbook(1, "Kolotushkin", "Pub1", "Matematika",
-                15000, 4, "Chitat'", dateFormat.parse("2020-02-20"));
-        booksArray[2] = new Textbook(2, "Dostoevskiy", "Pub2", "Istoriya",
-                10000, 11, "Pisat'", dateFormat.parse("2019-02-20"));
-        booksArray[3] = new Textbook(3, "Netstoevskiy", "Pub3", "Himiya",
-                12000, 9, "Smotret'", dateFormat.parse("2023-02-20"));
-        booksArray[4] = new Textbook(4, "Pochtistoevskiy", "Pub5", "Fizika",
-                13000, 11, "Vse vmeste", dateFormat.parse("2022-02-20"));
-        booksArray[5] = new Textbook(5, "Bulgakov", "Pub3", "Astronomiya",
-                11000, 10, "Ne ispol'zuetsa", dateFormat.parse("2021-02-20"));
+        booksArray[1] = new Textbook( "Kolotushkin", 15000, "Pub1",
+                new TextBookType(1, "Matematika"), 6, "Chitat'", dateFormat.parse("2020-02-20"));
+        booksArray[2] = new Textbook("Dostoevskiy",10000,  "Pub2", new TextBookType(2, "Istoriya"),
+                 11, "Pisat'", dateFormat.parse("2019-02-20"));
+        booksArray[3] = new Textbook( "Netstoevskiy", 12000,"Pub3", new TextBookType(3, "Himiya"),
+                 9, "Smotret'", dateFormat.parse("2023-02-20"));
+        booksArray[4] = new Textbook( "Pochtistoevskiy", 13000,"Pub5", new TextBookType(4, "Fizika"),
+                 11, "Vse vmeste", dateFormat.parse("2022-02-20"));
+        booksArray[5] = new Textbook( "Bulgakov", 11000,"Pub3", new TextBookType(5,"Astronomiya"),
+                 10, "Ne ispol'zuetsa", dateFormat.parse("2021-02-20"));
         booksArray[6] = new Book("Tolstoy", "Prestuplenie i nakazanie", 10000, "Pub2");
         booksArray[7] = new Book("Hudoi", "Prestuplenie i beznakazannost'", 10000, "Pub2");
         booksArray[8] = new Book("Griboedov", "Zakonoposlushnost' i nakazanie", 10000, "Pub4");

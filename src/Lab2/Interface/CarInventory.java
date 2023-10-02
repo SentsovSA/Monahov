@@ -59,7 +59,7 @@ public class CarInventory implements CarSalesManager {
         if (model != null) {
             return model.getAvailableCars();
         } else {
-            return -1; // Модель не найдена
+            return -1;
         }
     }
 }

@@ -51,10 +51,10 @@ public class BookTableModel extends AbstractTableModel {
     public Object getValueAt(int r, int c) {
         DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
         return switch (c) {
-            case 0 -> books.get(r).getNumber();
+            case 0 -> books.get(r).getType().getId();
             case 1 -> books.get(r).getAuthor();
             case 2 -> books.get(r).getPublisher();
-            case 3 -> books.get(r).getName();
+            case 3 -> books.get(r).getType().getName();
             case 4 -> books.get(r).getCirculation();
             case 5 -> books.get(r).getEducationLevel();
             case 6 -> books.get(r).getUseForm();

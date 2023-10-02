@@ -6,7 +6,6 @@ public class Book {
     private String name;
     private int circulation;
     private String publisher;
-    private boolean isCool;
 
     public Book(String author, String name, int circulation, String publisher) {
         this.author = author;
@@ -18,6 +17,12 @@ public class Book {
     public Book(String name, int circulation) {
         this.name = name;
         this.circulation = circulation;
+    }
+
+    public Book(String author, int circulation, String publisher) {
+        this.author = author;
+        this.circulation = circulation;
+        this.publisher = publisher;
     }
 
     public String getAuthor() {
@@ -61,7 +66,4 @@ public class Book {
                 ", издательство " + publisher;
     }
 
-    public boolean isCoolSelected() {
-        return isCool;
-    }
 }
