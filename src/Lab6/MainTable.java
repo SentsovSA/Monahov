@@ -24,6 +24,19 @@ public class MainTable implements TableModelListener {
     JTable tbl;
     TableModel tblModel;
     DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+    private TableRowSorter<BookTableModel> sorter;
+    private RowFilter<Object, Object> filter;
+
+    private boolean flag = false;
+
+    JTextField number = new JTextField(10);
+    JTextField author = new JTextField(20);
+    JTextField publisher = new JTextField(10);
+    JTextField name = new JTextField(10);
+    JTextField circulation = new JTextField(7);
+    JTextField educationLevel = new JTextField(5);
+    JTextField useForm = new JTextField(10);
+    JTextField arrivingDate = new JTextField(10);
 
     public MainTable() throws ParseException {
         JFrame frm = new JFrame("Books");
@@ -33,14 +46,7 @@ public class MainTable implements TableModelListener {
         pnlTbl.setLayout(new BorderLayout());
         pnlEdt.setLayout(new FlowLayout());
 
-        JTextField number = new JTextField(10);
-        JTextField author = new JTextField(20);
-        JTextField publisher = new JTextField(10);
-        JTextField name = new JTextField(10);
-        JTextField circulation = new JTextField(7);
-        JTextField educationLevel = new JTextField(5);
-        JTextField useForm = new JTextField(10);
-        JTextField arrivingDate = new JTextField(10);
+
         JButton bAdd = new JButton("Add");
         JButton bClear = new JButton("Clear");
         frm.setLayout(new BorderLayout());
@@ -72,30 +78,32 @@ public class MainTable implements TableModelListener {
         ArrayList<Textbook> bookArrayList = new ArrayList<>(bookList);
         bAdd.addActionListener(e -> {
             try {
-                bookArrayList.add(new Textbook(
-                        author.getText(),
-                        Integer.parseInt(circulation.getText()),
-                        publisher.getText(),
-                        new TextBookType(Integer.parseInt(number.getText()), name.getText()),
-                        Integer.parseInt(educationLevel.getText()),
-                        useForm.getText(),
-                        dateFormat.parse(arrivingDate.getText())));
+                if(flag) {
+                    bookArrayList.get(tbl.getSelectedRow()).setAuthor(author.getText());
+                    bookArrayList.get(tbl.getSelectedRow()).setCirculation(Integer.parseInt(circulation.getText()));
+                    bookArrayList.get(tbl.getSelectedRow()).setPublisher(publisher.getText());
+                    bookArrayList.get(tbl.getSelectedRow()).getType().setId(Integer.parseInt(number.getText()));
+                    bookArrayList.get(tbl.getSelectedRow()).getType().setName(name.getText());
+                    bookArrayList.get(tbl.getSelectedRow()).setEducationLevel(Integer.parseInt(educationLevel.getText()));
+                    bookArrayList.get(tbl.getSelectedRow()).setUseForm(useForm.getText());
+                    bookArrayList.get(tbl.getSelectedRow()).setDate(dateFormat.parse(arrivingDate.getText()));
+                } else {
+                    bookArrayList.add(new Textbook(
+                            author.getText(),
+                            Integer.parseInt(circulation.getText()),
+                            publisher.getText(),
+                            new TextBookType(Integer.parseInt(number.getText()), name.getText()),
+                            Integer.parseInt(educationLevel.getText()),
+                            useForm.getText(),
+                            dateFormat.parse(arrivingDate.getText())));
+                }
             } catch (NumberFormatException | ParseException exception) {
                 exception.printStackTrace();
             }
             ((AbstractTableModel)tblModel).fireTableDataChanged();
             tbl.updateUI();
         });
-        bClear.addActionListener(e -> {
-            number.setText("");
-            author.setText("");
-            publisher.setText("");
-            name.setText("");
-            circulation.setText("");
-            educationLevel.setText("");
-            useForm.setText("");
-            arrivingDate.setText("");
-        });
+        bClear.addActionListener(e -> clearFields());
         tblModel = new BookTableModel(bookArrayList);
         tblModel.addTableModelListener(this);
         tbl = new JTable(tblModel);
@@ -121,10 +129,36 @@ public class MainTable implements TableModelListener {
         defaultColor = number.getBackground();
         number.setForeground(Color.BLACK);
 
+
+        JTextField filterText = new JTextField(20);
+        JButton filterButton = new JButton("Фильтр");
+
+        filterButton.addActionListener(e -> {
+            String text = filterText.getText();
+            applyFilter(text);
+        });
+
+        pnlEdt.add(filterText);
+        pnlEdt.add(filterButton);
+
+        JButton sortButton = new JButton("Сортировка по номеру");
+
+        sortButton.addActionListener(e -> {
+            applySorting();
+        });
+
+        pnlEdt.add(sortButton);
+
+        tbl.getSelectionModel().addListSelectionListener(e -> {
+            int selectedRow = tbl.getSelectedRow();
+            setFieldsFromSelectedRow(selectedRow, bookArrayList);
+        });
+
         frm.getContentPane().add(pnlTbl, BorderLayout.CENTER);
         frm.getContentPane().add(pnlEdt, BorderLayout.SOUTH);
         frm.setVisible(true);
         frm.pack();
+
     }
 
     public static Color getDefaultColor() {
@@ -146,6 +180,52 @@ public class MainTable implements TableModelListener {
         } catch (ParseException e) {
             e.printStackTrace();
         }
+    }
+
+    private void applyFilter(String text) {
+        RowFilter<BookTableModel, Object> rf = null;
+        sorter = new TableRowSorter<>((BookTableModel) tblModel);
+        tbl.setRowSorter(sorter);
+        try {
+            rf = RowFilter.regexFilter(text);
+        } catch (java.util.regex.PatternSyntaxException e) {
+            return;
+        }
+        sorter.setRowFilter(rf);
+    }
+
+    private void applySorting() {
+        List<RowSorter.SortKey> sortKeys = new ArrayList<>();
+        sortKeys.add(new RowSorter.SortKey(0, SortOrder.ASCENDING));
+        sorter.setSortKeys(sortKeys);
+    }
+
+    private void setFieldsFromSelectedRow(int rowIndex, ArrayList<Textbook> bookArrayList) {
+        flag = true;
+        if (rowIndex >= 0 && rowIndex < tblModel.getRowCount()) {
+            Textbook selectedBook = bookArrayList.get(rowIndex);
+            number.setText(String.valueOf(selectedBook.getType().getId()));
+            author.setText(selectedBook.getAuthor());
+            publisher.setText(selectedBook.getPublisher());
+            name.setText(selectedBook.getType().getName());
+            circulation.setText(String.valueOf(selectedBook.getCirculation()));
+            educationLevel.setText(String.valueOf(selectedBook.getEducationLevel()));
+            useForm.setText(selectedBook.getUseForm());
+            arrivingDate.setText(formatter.format(selectedBook.getDate()));
+        } else {
+            clearFields();
+        }
+    }
+
+    private void clearFields() {
+        number.setText("");
+        author.setText("");
+        publisher.setText("");
+        name.setText("");
+        circulation.setText("");
+        educationLevel.setText("");
+        useForm.setText("");
+        arrivingDate.setText("");
     }
 }
 
