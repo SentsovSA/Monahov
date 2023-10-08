@@ -74,6 +74,7 @@ public class MainTable implements TableModelListener {
                 9, "Smotret'", dateFormat.parse("2023-02-20"));
         booksArray[9] = new Textbook( "Pochtistoevskiy", 13000,"Pub5", new TextBookType(4, "Fizika"),
                 11, "Vse vmeste", dateFormat.parse("2022-02-20"));
+
         List<Textbook> bookList = Arrays.asList(booksArray);
         ArrayList<Textbook> bookArrayList = new ArrayList<>(bookList);
         bAdd.addActionListener(e -> {
@@ -195,6 +196,8 @@ public class MainTable implements TableModelListener {
     }
 
     private void applySorting() {
+        sorter = new TableRowSorter<>((BookTableModel) tblModel);
+        tbl.setRowSorter(sorter);
         List<RowSorter.SortKey> sortKeys = new ArrayList<>();
         sortKeys.add(new RowSorter.SortKey(0, SortOrder.ASCENDING));
         sorter.setSortKeys(sortKeys);
