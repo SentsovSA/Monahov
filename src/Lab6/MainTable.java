@@ -2,6 +2,7 @@ package Lab6;
 
 import Lab2.Class.TextBookType;
 import Lab2.Class.Textbook;
+import org.w3c.dom.Text;
 
 import javax.swing.*;
 import javax.swing.event.TableModelEvent;
@@ -37,22 +38,23 @@ public class MainTable implements TableModelListener {
     JTextField educationLevel = new JTextField(5);
     JTextField useForm = new JTextField(10);
     JTextField arrivingDate = new JTextField(10);
+    JButton bAdd = new JButton("Add");
+    JButton bClear = new JButton("Clear");
+    JButton filterButton = new JButton("Фильтр");
+    JButton sortButton = new JButton("Сортировка по номеру");
+    JTextField filterText = new JTextField(20);
 
     public MainTable() throws ParseException {
-        JFrame frm = new JFrame("Books");
-        JPanel pnlTbl = new JPanel();
-        JPanel pnlEdt = new JPanel();
+        Textbook[] booksArray = creatingModel();
+        List<Textbook> bookList = Arrays.asList(booksArray);
+        ArrayList<Textbook> bookArrayList = new ArrayList<>(bookList);
 
-        pnlTbl.setLayout(new BorderLayout());
-        pnlEdt.setLayout(new FlowLayout());
+        creatingGui(bookArrayList);
 
+        addingListeners(bookArrayList);
+    }
 
-        JButton bAdd = new JButton("Add");
-        JButton bClear = new JButton("Clear");
-        frm.setLayout(new BorderLayout());
-        frm.setSize(600, 200);
-        frm.setLocation(300, 300);
-        frm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    private Textbook[] creatingModel() throws ParseException {
         Textbook[] booksArray = new Textbook[10];
         booksArray[0] = new Textbook( "Kolotushkin", 15000, "Pub1",
                 new TextBookType(1, "Matematika"), 6, "Chitat'", dateFormat.parse("2020-02-20"));
@@ -74,9 +76,10 @@ public class MainTable implements TableModelListener {
                 9, "Smotret'", dateFormat.parse("2023-02-20"));
         booksArray[9] = new Textbook( "Pochtistoevskiy", 13000,"Pub5", new TextBookType(4, "Fizika"),
                 11, "Vse vmeste", dateFormat.parse("2022-02-20"));
+        return booksArray;
+    }
 
-        List<Textbook> bookList = Arrays.asList(booksArray);
-        ArrayList<Textbook> bookArrayList = new ArrayList<>(bookList);
+    private void addingListeners(ArrayList<Textbook> bookArrayList) {
         bAdd.addActionListener(e -> {
             try {
                 if(flag) {
@@ -105,6 +108,35 @@ public class MainTable implements TableModelListener {
             tbl.updateUI();
         });
         bClear.addActionListener(e -> clearFields());
+
+
+        filterButton.addActionListener(e -> {
+            String text = filterText.getText();
+            applyFilter(text);
+        });
+
+
+
+        sortButton.addActionListener(e -> {
+            applySorting();
+        });
+    }
+
+    private void creatingGui(ArrayList<Textbook> bookArrayList) {
+        JFrame frm = new JFrame("Books");
+        JPanel pnlTbl = new JPanel();
+        JPanel pnlEdt = new JPanel();
+
+        pnlTbl.setLayout(new BorderLayout());
+        pnlEdt.setLayout(new FlowLayout());
+
+
+
+        frm.setLayout(new BorderLayout());
+        frm.setSize(600, 200);
+        frm.setLocation(300, 300);
+        frm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
         tblModel = new BookTableModel(bookArrayList);
         tblModel.addTableModelListener(this);
         tbl = new JTable(tblModel);
@@ -131,22 +163,8 @@ public class MainTable implements TableModelListener {
         number.setForeground(Color.BLACK);
 
 
-        JTextField filterText = new JTextField(20);
-        JButton filterButton = new JButton("Фильтр");
-
-        filterButton.addActionListener(e -> {
-            String text = filterText.getText();
-            applyFilter(text);
-        });
-
         pnlEdt.add(filterText);
         pnlEdt.add(filterButton);
-
-        JButton sortButton = new JButton("Сортировка по номеру");
-
-        sortButton.addActionListener(e -> {
-            applySorting();
-        });
 
         pnlEdt.add(sortButton);
 
@@ -159,7 +177,6 @@ public class MainTable implements TableModelListener {
         frm.getContentPane().add(pnlEdt, BorderLayout.SOUTH);
         frm.setVisible(true);
         frm.pack();
-
     }
 
     public static Color getDefaultColor() {
