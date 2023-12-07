@@ -2,12 +2,10 @@ package Lab6;
 
 import Lab2.Class.TextBookType;
 import Lab2.Class.Textbook;
-import org.w3c.dom.Text;
 
 import javax.swing.*;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
-import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
@@ -23,13 +21,12 @@ import static Lab2.Class.Textbook.dateFormat;
 public class MainTable implements TableModelListener {
     private static Color defaultColor;
     JTable tbl;
-    TableModel tblModel;
+    BookTableModel tblModel;
     DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
     private TableRowSorter<BookTableModel> sorter;
     private RowFilter<Object, Object> filter;
-
     private boolean flag = false;
-
+    ArrayList<Textbook> bookArrayList = new ArrayList<>();
     JTextField number = new JTextField(10);
     JTextField author = new JTextField(20);
     JTextField publisher = new JTextField(10);
@@ -38,23 +35,24 @@ public class MainTable implements TableModelListener {
     JTextField educationLevel = new JTextField(5);
     JTextField useForm = new JTextField(10);
     JTextField arrivingDate = new JTextField(10);
-    JButton bAdd = new JButton("Add");
-    JButton bClear = new JButton("Clear");
+    JButton bAdd = new JButton("Добавить");
+    JButton bClear = new JButton("Очистить");
     JButton filterButton = new JButton("Фильтр");
     JButton sortButton = new JButton("Сортировка по номеру");
     JTextField filterText = new JTextField(20);
 
     public MainTable() throws ParseException {
-        Textbook[] booksArray = creatingModel();
-        List<Textbook> bookList = Arrays.asList(booksArray);
-        ArrayList<Textbook> bookArrayList = new ArrayList<>(bookList);
+        tblModel = creatingModel();//создание модели
 
-        creatingGui(bookArrayList);
+        creatingGui(tblModel);//создание ui и загрузка готовых данных
+        //Ведь отрисовкой данных всегда занимается view, вне зависимости от архитектуры приложения, будь то MVVM,
+        //MVC, MVP и тп. А мы используем паттерн проектирования, основанный на SOLID или всё-таки на архитектурах?
+        //Между ними бывают расхождения, например MVVM в редакции Google для Android нарушает solid :)
 
-        addingListeners(bookArrayList);
+        addingListeners(bookArrayList);//добавление слушателей
     }
 
-    private Textbook[] creatingModel() throws ParseException {
+    private BookTableModel creatingModel() throws ParseException {
         Textbook[] booksArray = new Textbook[10];
         booksArray[0] = new Textbook( "Kolotushkin", 15000, "Pub1",
                 new TextBookType(1, "Matematika"), 6, "Chitat'", dateFormat.parse("2020-02-20"));
@@ -76,7 +74,11 @@ public class MainTable implements TableModelListener {
                 9, "Smotret'", dateFormat.parse("2023-02-20"));
         booksArray[9] = new Textbook( "Pochtistoevskiy", 13000,"Pub5", new TextBookType(4, "Fizika"),
                 11, "Vse vmeste", dateFormat.parse("2022-02-20"));
-        return booksArray;
+        List<Textbook> bookList = Arrays.asList(booksArray);
+        bookArrayList = new ArrayList<>(bookList);
+        tblModel = new BookTableModel(bookArrayList);
+        tblModel.addTableModelListener(this);
+        return tblModel;
     }
 
     private void addingListeners(ArrayList<Textbook> bookArrayList) {
@@ -104,47 +106,45 @@ public class MainTable implements TableModelListener {
             } catch (NumberFormatException | ParseException exception) {
                 exception.printStackTrace();
             }
-            ((AbstractTableModel)tblModel).fireTableDataChanged();
+            tblModel.fireTableDataChanged();
             tbl.updateUI();
         });
         bClear.addActionListener(e -> clearFields());
-
 
         filterButton.addActionListener(e -> {
             String text = filterText.getText();
             applyFilter(text);
         });
 
-
-
         sortButton.addActionListener(e -> {
             applySorting();
         });
+
+        tbl.getSelectionModel().addListSelectionListener(e -> {
+            int selectedRow = tbl.getSelectedRow();
+            setFieldsFromSelectedRow(selectedRow, bookArrayList);
+        });
     }
 
-    private void creatingGui(ArrayList<Textbook> bookArrayList) {
-        JFrame frm = new JFrame("Books");
+    private void creatingGui(BookTableModel tblModel) {
+        JFrame frm = new JFrame("Книги");
         JPanel pnlTbl = new JPanel();
         JPanel pnlEdt = new JPanel();
 
         pnlTbl.setLayout(new BorderLayout());
         pnlEdt.setLayout(new FlowLayout());
 
-
-
         frm.setLayout(new BorderLayout());
         frm.setSize(600, 200);
         frm.setLocation(300, 300);
         frm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        tblModel = new BookTableModel(bookArrayList);
-        tblModel.addTableModelListener(this);
         tbl = new JTable(tblModel);
         tbl.setDefaultRenderer (Number.class, new CirculationRenderer());
         tbl.setDefaultRenderer (Object.class, new StrRenderer());
 
         RowSorter<BookTableModel> sorter =
-                new TableRowSorter<>((BookTableModel) tblModel);
+                new TableRowSorter<>(tblModel);
         tbl.setRowSorter(sorter);
         JScrollPane scroll = new JScrollPane(tbl);
         tbl.setPreferredScrollableViewportSize(new Dimension(600, 100));
@@ -162,16 +162,10 @@ public class MainTable implements TableModelListener {
         defaultColor = number.getBackground();
         number.setForeground(Color.BLACK);
 
-
         pnlEdt.add(filterText);
         pnlEdt.add(filterButton);
 
         pnlEdt.add(sortButton);
-
-        tbl.getSelectionModel().addListSelectionListener(e -> {
-            int selectedRow = tbl.getSelectedRow();
-            setFieldsFromSelectedRow(selectedRow, bookArrayList);
-        });
 
         frm.getContentPane().add(pnlTbl, BorderLayout.CENTER);
         frm.getContentPane().add(pnlEdt, BorderLayout.SOUTH);
@@ -202,7 +196,7 @@ public class MainTable implements TableModelListener {
 
     private void applyFilter(String text) {
         RowFilter<BookTableModel, Object> rf = null;
-        sorter = new TableRowSorter<>((BookTableModel) tblModel);
+        sorter = new TableRowSorter<>(tblModel);
         tbl.setRowSorter(sorter);
         try {
             rf = RowFilter.regexFilter(text);
@@ -213,7 +207,7 @@ public class MainTable implements TableModelListener {
     }
 
     private void applySorting() {
-        sorter = new TableRowSorter<>((BookTableModel) tblModel);
+        sorter = new TableRowSorter<>(tblModel);
         tbl.setRowSorter(sorter);
         List<RowSorter.SortKey> sortKeys = new ArrayList<>();
         sortKeys.add(new RowSorter.SortKey(0, SortOrder.ASCENDING));

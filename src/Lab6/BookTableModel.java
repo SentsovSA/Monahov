@@ -1,6 +1,5 @@
 package Lab6;
 
-import Lab2.Class.Book;
 import Lab2.Class.Textbook;
 
 import javax.swing.table.AbstractTableModel;
@@ -30,14 +29,14 @@ public class BookTableModel extends AbstractTableModel {
     @Override
     public String getColumnName(int c) {
         return switch (c) {
-            case 0 -> "Number";
-            case 1 -> "Author";
-            case 2 -> "Publisher";
-            case 3 -> "Name";
-            case 4 -> "Circulation";
-            case 5 -> "Education level";
-            case 6 -> "Use form";
-            case 7 -> "Arriving date";
+            case 0 -> "Номер";
+            case 1 -> "Автор";
+            case 2 -> "Издательство";
+            case 3 -> "Название";
+            case 4 -> "Тираж";
+            case 5 -> "Уровень образования";
+            case 6 -> "Форма использования";
+            case 7 -> "Дата поступления";
             default -> "";
         };
     }
