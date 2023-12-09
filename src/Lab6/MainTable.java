@@ -27,19 +27,19 @@ public class MainTable implements TableModelListener {
     private RowFilter<Object, Object> filter;
     private boolean flag = false;
     ArrayList<Textbook> bookArrayList = new ArrayList<>();
-    JTextField number = new JTextField(10);
-    JTextField author = new JTextField(20);
-    JTextField publisher = new JTextField(10);
-    JTextField name = new JTextField(10);
-    JTextField circulation = new JTextField(7);
+    JTextField number = new JTextField(5);
+    JTextField author = new JTextField(5);
+    JTextField publisher = new JTextField(5);
+    JTextField name = new JTextField(5);
+    JTextField circulation = new JTextField(4);
     JTextField educationLevel = new JTextField(5);
-    JTextField useForm = new JTextField(10);
-    JTextField arrivingDate = new JTextField(10);
+    JTextField useForm = new JTextField(5);
+    JTextField arrivingDate = new JTextField(5);
     JButton bAdd = new JButton("Добавить");
     JButton bClear = new JButton("Очистить");
     JButton filterButton = new JButton("Фильтр");
     JButton sortButton = new JButton("Сортировка по номеру");
-    JTextField filterText = new JTextField(20);
+    JTextField filterText = new JTextField(5);
 
     public MainTable() throws ParseException {
         tblModel = creatingModel();//создание модели
@@ -140,8 +140,8 @@ public class MainTable implements TableModelListener {
         frm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         tbl = new JTable(tblModel);
+        tbl.setDefaultRenderer (String.class, new StrRenderer());
         tbl.setDefaultRenderer (Number.class, new CirculationRenderer());
-        tbl.setDefaultRenderer (Object.class, new StrRenderer());
 
         RowSorter<BookTableModel> sorter =
                 new TableRowSorter<>(tblModel);
